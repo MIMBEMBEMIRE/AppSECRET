@@ -2,9 +2,10 @@ require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-const encrypt = require("mongoose-encryption");
+const md5 = require("md5");
 const app = express();
 console.log(process.env.API_KEY);
+console.log(md5("123456)"));
 
 
 app.use(bodyParser.urlencoded({extended: true }));
@@ -16,17 +17,20 @@ const userSchema = new mongoose.Schema( {
     password:String,
 });
 
-userSchema.plugin(encrypt,{secret:process.env.SECRET,EncryptedField:["password"]});const User= new mongoose.model("User",userSchema);
+const User = new mongoose.model("User",userSchema);
 
-app.get("/" ,function(req,res){
-    res.render("home")
 
-})
 
-app.get("/login" ,function(req,res){
-    res.render("login");
 
-})
+app.get("/",function(req,res){
+    res.render("home");
+
+}),
+
+app.get("/login" ,function(req, res){
+
+    res.render("login")
+});
 
 
 app.get("/register" ,function(req,res){
@@ -36,7 +40,7 @@ app.get("/register" ,function(req,res){
 app.post("/register",function(req, res){
 
     const user1=req.body.username;
-    const user2 = req.body.password;
+    const user2 =md5(req.body.password);
     
 
     const newUser = new User({email:user1, password:user2});
@@ -51,13 +55,13 @@ app.post("/register",function(req, res){
 });
 app.post("/login",function(req,res){
     const username = req.body.username;
-    const pass = req.body.password;
+    const pass = md5(req.body.password);
     User.findOne({email:username},function(err,founderUSER){
         if(err){
             console.log(err);
         }else{
             if(founderUSER){
-                if(founderUSER.password ===pass);{
+                if(founderUSER.user2 ===pass);{
                     res.render("secrets");
                 }
             }
