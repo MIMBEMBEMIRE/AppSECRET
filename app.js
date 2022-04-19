@@ -12,8 +12,8 @@ app.use(bodyParser.urlencoded({extended: true }));
 
 app.use(session({
     secret: "MAMAN NA BISO",
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
 
 }));
 app.use(passport.initialize());
@@ -37,17 +37,6 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 
-
-
-
-
-
-
-
-
-
-
-
 app.get("/",function(req,res){
     res.render("home");
 
@@ -63,7 +52,35 @@ app.get("/register" ,function(req,res){
     res.render("register");
 
 });
+app.get("/secrets",function(req,res){
+
+
+if(req.isAuthenticated()){
+    res.render("secrets");
+}else{
+    res.redirect("/login");
+}
+
+
+}),
+
+
+
+
 app.post("/register",function(req, res){
+
+    User.register({username:req.body.username},req.body.password,function(err,user){
+        if(err){
+            console.log(err);
+            res.redirect("/register");
+        }else{
+            passport.authenticate("local")(req, res ,function(){
+
+            });
+        }
+        res.redirect("/secrets");
+    });
+
     
 
 
