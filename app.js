@@ -53,8 +53,6 @@ app.get("/register" ,function(req,res){
 
 });
 app.get("/secrets",function(req,res){
-
-
 if(req.isAuthenticated()){
     res.render("secrets");
 }else{
@@ -62,7 +60,14 @@ if(req.isAuthenticated()){
 }
 
 
-}),
+});
+
+app.get("/logout",function(req,res){
+
+req.logout();
+res.render("home");
+
+});
 
 
 
@@ -75,20 +80,47 @@ app.post("/register",function(req, res){
             res.redirect("/register");
         }else{
             passport.authenticate("local")(req, res ,function(){
+                
+                res.render("secrets");
+
 
             });
+
         }
-        res.redirect("/secrets");
-    });
-
     
+    })   
 
 
 });
+
 app.post("/login",function(req,res){
+    const user = new User({
+        username:req.body.username,
+        password:req.body.password
+    });
     
-});
+req.login(user, function(err){
+    if(err){
+        console.log(err);
+    }else{
 
+        passport.authenticate("local")(req, res ,function(){
+                
+            res.render("secrets"); 
+        });
+    }
+    
+        
+        
+        });
+    
+    
+
+    
+    
+
+
+});
 
 
 
