@@ -2,10 +2,15 @@ require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-const md5 = require("md5");
+const bcrypt = require("bcrypt");
+
+const salRounds=10;
 const app = express();
+
+
+
 console.log(process.env.API_KEY);
-console.log(md5("123456)"));
+
 
 
 app.use(bodyParser.urlencoded({extended: true }));
@@ -38,14 +43,12 @@ app.get("/register" ,function(req,res){
 
 });
 app.post("/register",function(req, res){
+    bcrypt.hash(req.body.password,salRounds ,function(err,hash){
 
-    const user1=req.body.username;
-    const user2 =md5(req.body.password);
-    
-
-    const newUser = new User({email:user1, password:user2});
-
-    newUser.save(function(err){
+const user1=req.body.username;
+const user2 =hash;
+const newUser = new User({email:user1, password:user2});
+newUser.save(function(err){
         if(!err){
             res.render("secrets");
         }
@@ -53,21 +56,29 @@ app.post("/register",function(req, res){
 });
 
 });
+});
 app.post("/login",function(req,res){
     const username = req.body.username;
-    const pass = md5(req.body.password);
+    const pass = req.body.password;
     User.findOne({email:username},function(err,founderUSER){
         if(err){
             console.log(err);
         }else{
             if(founderUSER){
-                if(founderUSER.user2 ===pass);{
-                    res.render("secrets");
-                }
+                bcrypt.compare(pass,founderUSER.user2 ,function(err,resulta){
+            if(resulta === true){
             }
-        }
-    });
+                
+                
 });
+}
+}         
+});      
+res.render("secrets");
+ 
+});
+
+
 
 
 app.listen(3000,function(){
